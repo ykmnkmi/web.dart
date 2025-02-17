@@ -269,16 +269,18 @@ class _RawType {
       'typeParameter: $typeParameter)';
 }
 
+// TODO(varargs): start from here
 class _Parameter {
   final Set<String> _names;
   final _RawType type;
   bool isOptional;
+  bool isVariadic;
   late final String name = _generateName();
 
-  _Parameter._(this._names, this.type, this.isOptional);
+  _Parameter._(this._names, this.type, this.isOptional, this.isVariadic);
 
-  factory _Parameter(idl.Argument argument) => _Parameter._(
-      {argument.name}, _getRawType(argument.idlType), argument.optional);
+  factory _Parameter(idl.Argument argument) => _Parameter._({argument.name},
+      _getRawType(argument.idlType), argument.optional, argument.variadic);
 
   String _generateName() {
     final namesList = _names.toList();
@@ -295,6 +297,9 @@ class _Parameter {
     type.update(argument.idlType);
     if (argument.optional) {
       isOptional = true;
+    }
+    if (argument.variadic) {
+      isVariadic = true;
     }
   }
 }
@@ -1411,7 +1416,7 @@ class Translator {
 
       final dartLibrary = _library(entry.value);
       if (dartLibrary.body.isEmpty && dartLibrary.directives.isEmpty) {
-        print('  not generating empty library: ${entry.value.url}');
+        // print('  not generating empty library: ${entry.value.url}');
       } else {
         dartLibraries[entry.key] = dartLibrary;
       }
